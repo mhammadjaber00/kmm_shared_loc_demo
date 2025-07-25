@@ -303,19 +303,6 @@ xcodebuild -project iosApp.xcodeproj -scheme iosApp -destination 'platform=iOS S
 2. **String Formatting**: iOS string formatting is simplified compared to Android
 3. **Language Addition**: Adding new languages requires updating both JSON files and iOS hardcoded strings
 
-## 🤝 Contributing
-
-### Adding New Strings
-1. Add the key constant to `StringKeys` object in `StringResourceManager.kt`
-2. Add the string to both `strings_en.json` and `strings_ar.json`
-3. Add the hardcoded string to both language maps in `StringResourceManager.ios.kt`
-4. Update any relevant demo code
-
-### Adding New Languages
-1. Create new JSON file: `strings_[language_code].json`
-2. Add corresponding hardcoded strings to iOS implementation
-3. Test RTL support if applicable
-
 ## 📄 License
 
 This project is provided as a demonstration and educational resource. Feel free to use and adapt for your own projects.
