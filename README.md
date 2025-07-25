@@ -1,33 +1,31 @@
 # Shared String Resources for Kotlin Multiplatform
 
-A comprehensive demo project showcasing the **best practices for sharing string resources between Android and iOS** in Kotlin Multiplatform projects, with support for native XML layouts, iOS Storyboards, and easy migration from existing native implementations.
+A demonstration project showcasing **shared string resources between Android and iOS** in Kotlin Multiplatform projects, with support for native Android Activities and iOS applications without Compose dependencies.
 
 ## 🎯 Project Purpose
 
 This project demonstrates how to:
 - ✅ **Centralize string resources** in one location for both Android and iOS
-- ✅ **Support native development workflows** (Android XML layouts, iOS Storyboards)
-- ✅ **Enable easy migration** from existing native string resources
+- ✅ **Support native development workflows** (Android Activities, iOS Swift/UIKit)
 - ✅ **Provide localization support** with RTL languages (English and Arabic included)
 - ✅ **Maintain type safety** with compile-time string validation
-- ✅ **Scale to large projects** with 1000+ strings
+- ✅ **Work without Compose** - pure native Android and iOS implementations
 
 ## 🏗️ Architecture Overview
 
 ```
 Shared String Resources (Pure KMP)
-├── JSON Resources (Source of Truth)
+├── JSON Resources (Android)
 │   ├── androidMain/assets/strings_en.json (English)
 │   └── androidMain/assets/strings_ar.json (Arabic)
 ├── Common Interface
-│   ├── StringResourceManager.kt (expect class)
-│   └── StringKeys.kt (string constants)
+│   ├── StringResourceManager.kt (expect class + StringKeys)
 ├── Platform Implementations
-│   ├── StringResourceManager.android.kt (actual class)
-│   └── StringResourceManager.ios.kt (actual class)
-└── Bridge Classes
-    ├── AndroidStringResourceBridge.kt (XML generation)
-    └── IOSStringResourceBridge.swift (Localizable.strings generation)
+│   ├── StringResourceManager.android.kt (loads JSON files)
+│   └── StringResourceManager.ios.kt (hardcoded strings)
+└── Demo Applications
+    ├── Android Activities (MainActivity, NativeXmlActivity, NativeAndroidActivity)
+    └── iOS App (SwiftUI + UIKit demos)
 ```
 
 ## 🚀 Quick Start
@@ -57,14 +55,15 @@ xcodebuild -project iosApp.xcodeproj -scheme iosApp -destination 'platform=iOS S
 ## 📱 Demo Applications
 
 ### Android App
-- **Main Activity**: Entry point with navigation to native XML demo
-- **Native XML Activity**: Complete demonstration of shared strings in native Android Views
-- **Features**: AlertDialogs, Toasts, dynamic content, string generation utilities
+- **MainActivity**: Entry point with navigation to native demo
+- **NativeXmlActivity**: Comprehensive demonstration of shared strings in native Android Views
+- **NativeAndroidActivity**: Alternative native Android implementation
+- **Features**: AlertDialogs, Toasts, dynamic content, counter updates, language info
 
 ### iOS App
-- **Native SwiftUI Tab**: Pure SwiftUI implementation using shared strings
-- **Native Storyboard Demo**: UIKit components with shared string resources
-- **Features**: Alerts, dynamic content, RTL support, localization switching
+- **SwiftUI Views**: Native SwiftUI implementation using shared strings
+- **UIKit Components**: Native iOS components with shared string resources
+- **Features**: Alerts, dynamic content, RTL support, localization
 
 ## 💡 Usage Examples
 
@@ -75,41 +74,40 @@ xcodebuild -project iosApp.xcodeproj -scheme iosApp -destination 'platform=iOS S
 val stringManager = StringResourceManager(context) // Android
 val stringManager = StringResourceManager() // iOS
 
-// Get strings
+// Get strings using StringKeys constants
 val appName = stringManager.getString(StringKeys.APP_NAME)
 val welcomeMsg = stringManager.getString(StringKeys.WELCOME_TITLE)
 
 // Formatted strings
-val counter = stringManager.getFormattedString("counter_label", 42)
+val counter = stringManager.getFormattedString(StringKeys.COUNTER_LABEL, 42)
 
 // Localization info
 val isRTL = stringManager.isRTL()
 val currentLang = stringManager.getCurrentLanguage()
 ```
 
-### Android XML Layouts
+### Android Activities
 
 ```kotlin
-class MainActivity : AppCompatActivity() {
+class MainActivity : Activity() {
     private lateinit var stringManager: StringResourceManager
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
         
         stringManager = StringResourceManager(this)
         
-        // Set text programmatically
-        findViewById<TextView>(R.id.title).text = 
-            stringManager.getString(StringKeys.WELCOME_TITLE)
+        // Set title using shared strings
+        title = stringManager.getString(StringKeys.APP_NAME)
         
-        findViewById<Button>(R.id.button).text = 
-            stringManager.getString(StringKeys.BUTTON_CLICK_ME)
+        // Create UI with shared strings
+        val titleText = stringManager.getString(StringKeys.WELCOME_TITLE)
+        val buttonText = stringManager.getString(StringKeys.BUTTON_CLICK_ME)
     }
 }
 ```
 
-### iOS Storyboards
+### iOS Swift Integration
 
 ```swift
 import SharedApp
@@ -117,18 +115,15 @@ import SharedApp
 class ViewController: UIViewController {
     private let stringManager = StringResourceManager()
     
-    @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var actionButton: UIButton!
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Set text programmatically
-        titleLabel.text = stringManager.getString(key: "welcome_title")
-        actionButton.setTitle(stringManager.getString(key: "button_click_me"), for: .normal)
+        // Set text using shared strings
+        titleLabel.text = stringManager.getString(key: StringKeys.shared.WELCOME_TITLE)
+        actionButton.setTitle(stringManager.getString(key: StringKeys.shared.BUTTON_CLICK_ME), for: .normal)
         
         // Set navigation title
-        title = stringManager.getString(key: "app_name")
+        title = stringManager.getString(key: StringKeys.shared.APP_NAME)
     }
 }
 ```
@@ -136,17 +131,17 @@ class ViewController: UIViewController {
 ### SwiftUI Integration
 
 ```swift
-struct MyView: View {
+struct ContentView: View {
     var body: some View {
         VStack {
-            Text(SharedStrings.welcomeTitle)
+            Text(SharedStrings.shared.welcomeTitle)
                 .font(.largeTitle)
             
-            Button(SharedStrings.buttonClickMe) {
+            Button(SharedStrings.shared.buttonClickMe) {
                 // Action
             }
         }
-        .navigationTitle(SharedStrings.appName)
+        .navigationTitle(SharedStrings.shared.appName)
     }
 }
 ```
@@ -157,66 +152,42 @@ struct MyView: View {
 - **English** (default): `strings_en.json`
 - **Arabic** (RTL): `strings_ar.json`
 
-### Adding New Languages
+### String Resources Structure
 
-1. **Create JSON file:**
-```bash
-cp composeApp/src/androidMain/assets/strings_en.json \
-   composeApp/src/androidMain/assets/strings_es.json
-```
+The project includes the following string categories:
 
-2. **Translate strings:**
-```json
-{
-  "app_name": "aplicación de demostración",
-  "welcome_title": "Bienvenido a KMP Demo",
-  "button_click_me": "¡Haz clic aquí!"
+```kotlin
+object StringKeys {
+    // App information
+    const val APP_NAME = "app_name"
+    
+    // UI strings
+    const val BUTTON_CLICK_ME = "button_click_me"
+    
+    // Welcome messages
+    const val WELCOME_TITLE = "welcome_title"
+    const val WELCOME_DESCRIPTION = "welcome_description"
+    
+    // Common actions
+    const val ACTION_OK = "action_ok"
+    const val ACTION_CANCEL = "action_cancel"
+    const val ACTION_RETRY = "action_retry"
+    
+    // Error messages
+    const val ERROR_NETWORK = "error_network"
+    const val ERROR_GENERIC = "error_generic"
+    
+    // Demo-specific strings
+    const val NATIVE_DEMO_TITLE = "native_demo_title"
+    const val COUNTER_LABEL = "counter_label" // Supports formatting: "Counter: %d"
+    const val CURRENT_LANGUAGE = "current_language" // Supports formatting: "Current Language: %s"
 }
 ```
-
-3. **Update iOS implementation** to include new language in hardcoded strings (temporary solution)
 
 ### RTL Support
 - Automatic RTL detection for Arabic and other RTL languages
 - Layout direction handled automatically on both platforms
 - Text alignment and UI mirroring supported
-
-## 🔧 Advanced Features
-
-### Direct XML/Storyboard Integration
-
-For teams preferring traditional native development workflows, the project supports **build-time generation** of native resource files:
-
-#### Android: Generate strings.xml
-```kotlin
-// Add to build.gradle.kts
-tasks.register("generateAndroidStrings") {
-    // Converts JSON to traditional strings.xml files
-    // Enables @string/resource_name usage in XML layouts
-}
-```
-
-#### iOS: Generate Localizable.strings
-```python
-# Python script to generate iOS Localizable.strings
-python3 generate_ios_strings.py
-# Enables direct Storyboard localization
-```
-
-See [DIRECT_XML_STORYBOARD_INTEGRATION.md](DIRECT_XML_STORYBOARD_INTEGRATION.md) for complete implementation details.
-
-## 📚 Comprehensive Guides
-
-This project includes detailed documentation for various use cases:
-
-### Core Guides
-- **[STRING_RESOURCES_GUIDE.md](STRING_RESOURCES_GUIDE.md)** - Basic shared string resources implementation
-- **[NATIVE_XML_STORYBOARD_GUIDE.md](NATIVE_XML_STORYBOARD_GUIDE.md)** - Pure native integration without Compose
-
-### Advanced Guides  
-- **[MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)** - Complete migration from existing native resources
-- **[DIRECT_XML_STORYBOARD_INTEGRATION.md](DIRECT_XML_STORYBOARD_INTEGRATION.md)** - Build-time generation for direct XML/Storyboard usage
-- **[NATIVE_INTEGRATION_GUIDE.md](NATIVE_INTEGRATION_GUIDE.md)** - Native iOS Swift and Android integration alongside Compose
 
 ## 🏗️ Project Structure
 
@@ -226,12 +197,12 @@ demo/
 ├── build.gradle.kts                            # Root build configuration
 ├── settings.gradle.kts                         # Project settings
 ├── gradle/                                     # Gradle wrapper and dependencies
+│   └── libs.versions.toml                     # Version catalog
 ├── composeApp/                                 # Main KMP module
 │   ├── build.gradle.kts                       # Module build configuration
 │   ├── src/
 │   │   ├── commonMain/kotlin/io/yavero/demo/
-│   │   │   ├── StringResourceManager.kt       # Common interface (expect)
-│   │   │   └── StringKeys.kt                  # String key constants
+│   │   │   └── StringResourceManager.kt       # Common interface + StringKeys
 │   │   ├── androidMain/
 │   │   │   ├── assets/
 │   │   │   │   ├── strings_en.json           # English strings
@@ -240,71 +211,39 @@ demo/
 │   │   │       ├── StringResourceManager.android.kt  # Android implementation
 │   │   │       ├── MainActivity.kt                   # Main Android activity
 │   │   │       ├── NativeXmlActivity.kt              # Native XML demo
-│   │   │       └── AndroidStringResourceBridge.kt    # XML generation utilities
+│   │   │       ├── NativeAndroidActivity.kt          # Alternative native demo
+│   │   │       └── AndroidStringResourceBridge.kt    # Android utilities
 │   │   └── iosMain/kotlin/io/yavero/demo/
-│   │       └── StringResourceManager.ios.kt   # iOS implementation
-├── iosApp/                                     # iOS application
-│   ├── iosApp.xcodeproj/                      # Xcode project
-│   └── iosApp/
-│       ├── ContentView.swift                  # Main iOS view
-│       ├── NativeSwiftView.swift              # Native SwiftUI demo
-│       ├── StringResourcesHelper.swift        # Swift helper utilities
-│       ├── IOSStringResourceBridge.swift      # Localizable.strings generation
-│       └── NativeStoryboardViewController.swift # Native UIKit demo
-└── Documentation/                              # Additional guides
-    ├── STRING_RESOURCES_GUIDE.md
-    ├── MIGRATION_GUIDE.md
-    ├── NATIVE_XML_STORYBOARD_GUIDE.md
-    ├── DIRECT_XML_STORYBOARD_INTEGRATION.md
-    └── NATIVE_INTEGRATION_GUIDE.md
+│   │       └── StringResourceManager.ios.kt   # iOS implementation (hardcoded strings)
+└── iosApp/                                     # iOS application
+    ├── iosApp.xcodeproj/                      # Xcode project
+    └── iosApp/
+        ├── ContentView.swift                  # Main iOS SwiftUI view
+        ├── NativeSwiftView.swift              # Native SwiftUI demo
+        ├── StringResourcesHelper.swift        # Swift helper utilities
+        ├── IOSStringResourceBridge.swift      # iOS utilities
+        └── NativeStoryboardViewController.swift # Native UIKit demo
 ```
-
-## 🔄 Migration from Existing Projects
-
-### From Android strings.xml
-
-1. **Convert XML to JSON:**
-```python
-# Use provided conversion script
-python3 convert_strings_xml_to_json.py app/src/main/res/values/strings.xml strings_en.json
-```
-
-2. **Update code:**
-```kotlin
-// Before
-getString(R.string.welcome_title)
-
-// After  
-stringManager.getString(StringKeys.WELCOME_TITLE)
-```
-
-### From iOS Localizable.strings
-
-1. **Convert to JSON:**
-```python
-# Use provided conversion script
-python3 convert_localizable_to_json.py Base.lproj/Localizable.strings strings_en.json
-```
-
-2. **Update code:**
-```swift
-// Before
-NSLocalizedString("welcome_title", comment: "")
-
-// After
-stringManager.getString(key: "welcome_title")
-```
-
-See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for complete migration instructions, including automated tools for large projects.
 
 ## ⚙️ Build Configuration
 
-### Android (build.gradle.kts)
+### Kotlin Multiplatform Setup
 ```kotlin
 kotlin {
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
+        }
+    }
+    
+    listOf(
+        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "SharedApp"
+            isStatic = true
         }
     }
     
@@ -320,105 +259,62 @@ kotlin {
 }
 ```
 
-### iOS Framework
-```kotlin
-listOf(
-    iosX64(),
-    iosArm64(),
-    iosSimulatorArm64()
-).forEach { iosTarget ->
-    iosTarget.binaries.framework {
-        baseName = "SharedApp"
-        isStatic = true
-    }
-}
-```
+### Key Features
+- **No Compose Dependencies**: Pure native Android and iOS implementations
+- **Static iOS Framework**: Named "SharedApp" for iOS integration
+- **Minimal Dependencies**: Only essential Android libraries
 
 ## 🧪 Testing
 
-### Run Tests
+### Run Android App
 ```bash
-# Android
-./gradlew test
-
-# iOS  
-xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp -destination 'platform=iOS Simulator,name=iPhone 15'
+./gradlew :composeApp:installDebug
+# Launch the app on your Android device/emulator
 ```
 
-### Validation
+### Run iOS App
 ```bash
-# Validate string completeness across languages
-./gradlew validateStringResources
+cd iosApp
+xcodebuild -project iosApp.xcodeproj -scheme iosApp -destination 'platform=iOS Simulator,name=iPhone 15' build
 ```
 
-## 🎯 Best Practices
+## 🎯 Implementation Details
 
-### 1. String Organization
-- Use consistent naming conventions (snake_case)
-- Group related strings with prefixes (`error_`, `action_`, `welcome_`)
-- Keep string keys descriptive but concise
+### Android Implementation
+- **JSON Loading**: Loads strings from `assets/strings_*.json` files
+- **Caching**: Implements string caching for performance
+- **Fallback**: Falls back to English if language-specific file fails
+- **RTL Detection**: Uses Android's built-in RTL detection
 
-### 2. Localization
-- Always provide fallback strings in English
-- Test RTL layouts thoroughly
-- Use proper format specifiers (`%s`, `%d`) for cross-platform compatibility
+### iOS Implementation
+- **Hardcoded Strings**: Currently uses hardcoded string maps (noted in code comments)
+- **Language Detection**: Uses NSLocale for language detection
+- **RTL Support**: Manual RTL detection for common RTL languages
+- **Simple Formatting**: Basic string formatting support
 
-### 3. Performance
-- Cache StringResourceManager instances
-- Use StringKeys constants for type safety
-- Avoid creating new instances in loops
+### Shared Interface
+- **StringResourceManager**: Expect/actual class for platform-specific implementations
+- **StringKeys**: Object with string key constants for type safety
+- **SharedStrings**: Convenience object for easy access to common strings
 
-### 4. Team Workflow
-- Update JSON files first, then regenerate native resources if using build-time generation
-- Use validation scripts to ensure translation completeness
-- Document string usage and context for translators
+## 🚨 Known Limitations
 
-## 🚨 Troubleshooting
-
-### Common Issues
-
-**Build Errors:**
-```bash
-# Clean and rebuild
-./gradlew clean build
-```
-
-**Missing Strings:**
-- Check JSON file syntax and encoding (UTF-8)
-- Verify string keys match StringKeys constants
-- Ensure all languages have the same keys
-
-**iOS Framework Issues:**
-- Verify framework name is "SharedApp" in Swift imports
-- Check Xcode project settings for framework integration
-
-**Localization Not Working:**
-- Test device language settings
-- Verify JSON files are in correct assets directory
-- Check RTL detection logic for Arabic
-
-## 📈 Scaling to Large Projects
-
-This system is designed to handle enterprise-scale applications:
-
-- **1000+ strings**: Efficient JSON parsing and caching
-- **Multiple teams**: Clear separation of concerns and documentation
-- **CI/CD integration**: Automated validation and generation scripts
-- **Gradual migration**: Bridge classes for incremental adoption
+1. **iOS JSON Loading**: iOS implementation currently uses hardcoded strings instead of loading JSON files
+2. **String Formatting**: iOS string formatting is simplified compared to Android
+3. **Language Addition**: Adding new languages requires updating both JSON files and iOS hardcoded strings
 
 ## 🤝 Contributing
 
-### Adding New Features
-1. Update common interface in `StringResourceManager.kt`
-2. Implement in both Android and iOS actual classes
-3. Add tests and documentation
-4. Update relevant guides
+### Adding New Strings
+1. Add the key constant to `StringKeys` object in `StringResourceManager.kt`
+2. Add the string to both `strings_en.json` and `strings_ar.json`
+3. Add the hardcoded string to both language maps in `StringResourceManager.ios.kt`
+4. Update any relevant demo code
 
 ### Adding New Languages
 1. Create new JSON file: `strings_[language_code].json`
-2. Update iOS implementation to include hardcoded strings
+2. Add corresponding hardcoded strings to iOS implementation
 3. Test RTL support if applicable
-4. Update documentation
 
 ## 📄 License
 
@@ -430,13 +326,6 @@ This project is provided as a demonstration and educational resource. Feel free 
 - [Android String Resources](https://developer.android.com/guide/topics/resources/string-resource)
 - [iOS Localization Guide](https://developer.apple.com/documentation/xcode/localization)
 
-## 📞 Support
-
-For questions about implementation or usage:
-1. Check the comprehensive guides in this repository
-2. Review the demo applications for practical examples
-3. Examine the source code for implementation details
-
 ---
 
-**This project demonstrates the ultimate solution for sharing string resources between Android and iOS**, providing a centralized, maintainable, and migration-friendly approach that works seamlessly with native platform development while maintaining all the benefits of shared resources.
+**This project demonstrates a practical approach to sharing string resources between Android and iOS** using Kotlin Multiplatform, providing a centralized and maintainable solution that works with native platform development without requiring Compose Multiplatform.
