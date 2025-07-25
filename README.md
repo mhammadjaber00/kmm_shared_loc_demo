@@ -1,4 +1,4 @@
-# Shared String Resources for Kotlin Multiplatform in a legacy xml / storyboard project
+# Shared String Resources for Kotlin Multiplatform (XML/STORYBOARD)
 
 A demonstration project showcasing **shared string resources between Android and iOS** in Kotlin Multiplatform projects, with support for native Android Activities and iOS applications without Compose dependencies.
 
