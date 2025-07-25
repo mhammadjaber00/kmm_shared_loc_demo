@@ -1,0 +1,20 @@
+{
+  "app_name": "تطبيق تجريبي",
+  "button_click_me": "اضغط هنا!",
+  "welcome_title": "مرحباً بك في تطبيق KMP التجريبي",
+  "welcome_description": "هذا يوضح موارد النصوص المشتركة بين أندرويد و iOS",
+  "action_ok": "موافق",
+  "action_cancel": "إلغاء",
+  "action_retry": "إعادة المحاولة",
+  "error_network": "حدث خطأ في الشبكة",
+  "error_generic": "حدث خطأ ما",
+  "sample_text_1": "هذا مورد نص مشترك",
+  "sample_text_2": "متاح على كل من أندرويد و iOS",
+  "sample_text_3": "مركزي وسهل الصيانة",
+  "native_demo_title": "عرض واجهة المستخدم الأصلية",
+  "native_demo_description": "هذا يوضح استخدام النصوص المشتركة في تخطيطات Android XML الأصلية و iOS Storyboards",
+  "counter_label": "العداد: %d",
+  "language_info": "معلومات اللغة:",
+  "current_language": "اللغة الحالية: %s",
+  "is_rtl": "من اليمين إلى اليسار: %s"
+}

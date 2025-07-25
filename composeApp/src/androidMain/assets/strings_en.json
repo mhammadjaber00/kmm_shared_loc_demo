@@ -1,0 +1,20 @@
+{
+  "app_name": "demo",
+  "button_click_me": "Click me!",
+  "welcome_title": "Welcome to KMP Demo",
+  "welcome_description": "This demonstrates shared string resources between Android and iOS",
+  "action_ok": "OK",
+  "action_cancel": "Cancel",
+  "action_retry": "Retry",
+  "error_network": "Network error occurred",
+  "error_generic": "Something went wrong",
+  "sample_text_1": "This is a shared string resource",
+  "sample_text_2": "Available on both Android and iOS",
+  "sample_text_3": "Centralized and easy to maintain",
+  "native_demo_title": "Native UI Demo",
+  "native_demo_description": "This demonstrates using shared strings in native Android XML layouts and iOS Storyboards",
+  "counter_label": "Counter: %d",
+  "language_info": "Language Info:",
+  "current_language": "Current Language: %s",
+  "is_rtl": "Is RTL: %s"
+}
